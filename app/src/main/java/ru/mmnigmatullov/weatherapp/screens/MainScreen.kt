@@ -2,9 +2,12 @@ package ru.mmnigmatullov.weatherapp.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,6 +15,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,6 +25,7 @@ import coil.compose.AsyncImage
 import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
 import ru.mmnigmatullov.weatherapp.R
+import ru.mmnigmatullov.weatherapp.data.WeatherModel
 import ru.mmnigmatullov.weatherapp.ui.theme.WhiteLight
 
 
@@ -121,9 +126,9 @@ fun MainCard() {
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
+@ExperimentalPagerApi
 @Composable
-fun TabLayout(){
+fun TabLayout(daysList: MutableState<List<WeatherModel>>){
     val tabList = listOf("HOURS", "DAYS")
     val pagerState = rememberPagerState()
     val tabIndex = pagerState.currentPage
@@ -160,10 +165,22 @@ fun TabLayout(){
     }
         HorizontalPager(
             count = tabList.size,
-            state = PagerState(),
+            state = pagerState,
             modifier = Modifier.weight(1.0f)
         ) {
                 index ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+            ){
+                itemsIndexed(
+                    daysList.value
+                ){
+                    _, item ->ru.mmnigmatullov.weatherapp.ListItem(item)
+                }
+
+
+                }
+            }
         }
     }
-}
