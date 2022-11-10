@@ -29,9 +29,8 @@ import ru.mmnigmatullov.weatherapp.data.WeatherModel
 import ru.mmnigmatullov.weatherapp.ui.theme.WhiteLight
 
 
-@Preview(showBackground = true)
 @Composable
-fun MainCard() {
+fun MainCard(currentDay: MutableState<WeatherModel>) {
     Column(
         modifier = Modifier
             .padding(5.dp)
@@ -56,13 +55,13 @@ fun MainCard() {
                 ) {
                     Text(
                         modifier = Modifier.padding(top = 8.dp, start = 8.dp),
-                        text = "20 June 2022 13:00",
+                        text = currentDay.value.time,
                         style = TextStyle(fontSize = 15.sp),
                         color = Color.Black
 
                     )
                     AsyncImage(
-                        model = "https://cdn.weatherapi.com/weather/64x64/day/116.png",
+                        model = "https:" + currentDay.value.icon,
                         contentDescription = "im2",
                         modifier = Modifier
                             .size(35.dp)
@@ -73,17 +72,17 @@ fun MainCard() {
                     )
                 }
                 Text(
-                    text = "Moscow",
+                    text = currentDay.value.city,
                     style = TextStyle(fontSize = 24.sp),
                     color = Color.Black
                 )
                 Text(
-                    text = "23°C",
+                    text = currentDay.value.currentTemp.toFloat().toInt().toString() + "°C",
                     style = TextStyle(fontSize = 65.sp),
                     color = Color.Black
                 )
                 Text(
-                    text = "Cloudy",
+                    text = currentDay.value.condition,
                     style = TextStyle(fontSize = 16.sp),
                     color = Color.Black
                 )
@@ -105,7 +104,8 @@ fun MainCard() {
                     }
                     Text(
                         modifier = Modifier.padding(top = 8.dp),
-                        text = "23°C/12°C",
+                        text = "${currentDay.value.maxTemp.toFloat().toInt()}°C/"+
+                               "${currentDay.value.minTemp.toFloat().toInt()}°C",
                         style = TextStyle(fontSize = 16.sp),
                         color = Color.Black
                     )

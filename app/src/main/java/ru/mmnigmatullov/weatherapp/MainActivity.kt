@@ -25,6 +25,7 @@ import ru.mmnigmatullov.weatherapp.data.WeatherModel
 import ru.mmnigmatullov.weatherapp.screens.MainCard
 import ru.mmnigmatullov.weatherapp.screens.TabLayout
 import ru.mmnigmatullov.weatherapp.ui.theme.WeatherAppTheme
+import java.time.MonthDay
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalPagerApi::class)
@@ -35,7 +36,21 @@ class MainActivity : ComponentActivity() {
                 val daysList = remember {
                     mutableStateOf(listOf<WeatherModel>())
                 }
-                getData("London", this, daysList)
+                val currentDay = remember {
+                    mutableStateOf(
+                        WeatherModel(
+                            "",
+                            "",
+                            "0.0",
+                            "",
+                            "",
+                            "0.0",
+                            "0.0",
+                            ""
+                        )
+                    )
+                }
+                getData("London", this, daysList, currentDay)
                 Image(
                     painter = painterResource(id = R.drawable.weather_bg),
                     contentDescription = "im1",
@@ -44,8 +59,8 @@ class MainActivity : ComponentActivity() {
                         .alpha(0.7f),
                     contentScale = ContentScale.FillBounds
                 )
-                Column{
-                    MainCard()
+                Column {
+                    MainCard(currentDay)
                     TabLayout(daysList)
                 }
 
@@ -54,34 +69,39 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private fun getData(city: String, context: Context, daysList: MutableState<List<WeatherModel>>) {
+private fun getData(
+    city: String, context: Context,
+    daysList: MutableState<List<WeatherModel>>,
+    currentDay: MutableState<WeatherModel>
+) {
     val url = "https://api.weatherapi.com/v1/forecast.json?key=$API_KEY" +
             "&q=$city" +
             "&days=" +
-            "1" +
+            "3" +
             "&aqi=no&alerts=no"
     val queue = Volley.newRequestQueue(context)
     val sRequest = StringRequest(
         Request.Method.GET,
         url,
-        {
-                response ->
+        { response ->
             val list = getWeatherByDays(response)
+            currentDay.value = list[0]
             daysList.value = list
 
         },
-        {Log.d("","VolleyError: $it") }
+        { Log.d("", "VolleyError: $it") }
     )
     queue.add(sRequest)
 }
-private fun getWeatherByDays(response: String): List<WeatherModel>{
+
+private fun getWeatherByDays(response: String): List<WeatherModel> {
     if (response.isEmpty()) return listOf()
     val list = ArrayList<WeatherModel>()
     val mainObject = JSONObject(response)
     val city = mainObject.getJSONObject("location").getString("name")
-    val days = mainObject.getJSONObject("forecast"). getJSONArray("forecastday")
+    val days = mainObject.getJSONObject("forecast").getJSONArray("forecastday")
 
-    for (i in 0 until days.length()){
+    for (i in 0 until days.length()) {
         val item = days[i] as JSONObject
         list.add(
             WeatherModel(
